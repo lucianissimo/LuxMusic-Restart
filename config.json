@@ -1,0 +1,17 @@
+{
+    "bot_prefix": "-",
+    "token": "ODg5ODgyNzI5MjM0MTg2Mjgx.GSvksf.KR3bIFiT0o9cxLJdbQaKBZWU6AG3HUxPd76Lvg",
+    "guild_ids": [686373883833614360],
+    "spotify_api": {
+        "client_id": "252c7d47bc4b43b392b64fa771b8fae0", 
+        "client_secret": "083f46e478224b509cb7de10ad68d3b6"
+    },
+    "nodes": [
+        {
+            "host": "lava.link",
+            "port": 80,
+            "password": "password"
+        }
+    ],
+    "owners": [453973864657977365]
+}
