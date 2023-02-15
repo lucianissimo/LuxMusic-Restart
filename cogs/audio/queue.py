@@ -3,6 +3,7 @@ import asyncio
 import discord
 import wavelink
 from discord.ext import commands
+from typing import Optional
         
 class Queue(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -69,11 +70,12 @@ class Queue(commands.Cog):
 #loopenable
 
     @commands.hybrid_command(name="loop", with_app_command=True)
-    async def loop_command(self, ctx: commands.Context) -> None:
+    async def loop_command(self, ctx: commands.Context, loop_current_track: Optional[bool] = False) -> None:
         """Enable/Disable the loop for the queue (2h max).
 
         Args:
-            ctx (commands.Context): _description_
+            ctx (commands.Context): The context of the command.
+            loop_current_track (bool, optional): Whether to loop only the current track or the entire queue. Defaults to False.
         """
         try:
             if not ctx.author.voice:
@@ -87,19 +89,36 @@ class Queue(commands.Cog):
                return
 
             if vc.queue.is_empty:
-               await ctx.send("Queue is empty, cannot start loop.")
+               # Start loop with current track if queue is empty
+               self.loop_queue = True
+               await ctx.send("Queue is empty, starting loop with current track.")
+               vc.repeat = True
                return
 
             self.loop_queue = not self.loop_queue
             if self.loop_queue:
-               await ctx.send("Queue loop is now enabled.")
-               self.timer = self.bot.loop.create_task(self.disconnect_timer())
+               if loop_current_track:
+                  await ctx.send("Current track loop is now enabled.")
+                  vc.repeat = True
+               else:
+                  await ctx.send("Queue loop is now enabled.")
+                  vc.repeat = True
+                  self.timer = self.bot.loop.create_task(self.disconnect_timer())
             else:
-               await ctx.send("Queue loop is now disabled.")
-               if self.timer:
-                  self.timer.cancel()
+               if loop_current_track:
+                  await ctx.send("Current track loop is now disabled.")
+                  vc.repeat = False
+               else:
+                  await ctx.send("Queue loop is now disabled.")
+                  vc.repeat = False
+                  if self.timer:
+                      self.timer.cancel()
+        except commands.CommandInvokeError as e:
+            await ctx.send(f"An error occurred while running the command: {e}")
+        except commands.CommandError as e:
+            await ctx.send(f"Invalid command usage: {e}")
         except Exception as e:
-            await ctx.send(f"An error occurred: {e}")
+            await ctx.send(f"An unexpected error occurred: {e}")
             
 #playing
 

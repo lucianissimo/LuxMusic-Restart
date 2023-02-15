@@ -63,9 +63,11 @@ class Play(commands.Cog):
                 if len(playlist.tracks) == 1:
                     track = await vc.play(playlist.tracks[0])
                     await ctx.send(f"Now playing: {track.title}")
+                    await self.send_embedded_message(ctx, track)
                 else:
                     track = await vc.play(playlist.tracks[0])
                     await ctx.send(f"Now playing: {track.title}")
+                    await self.send_embedded_message(ctx, track)
                     for track in playlist.tracks[1:]:
                         await self.add_track(ctx, track)
             else:
@@ -82,8 +84,28 @@ class Play(commands.Cog):
                 )
                 track = await vc.play(partial)
                 await ctx.send(f"Now playing: {track.title}")
+                await self.send_embedded_message(ctx, track)
             else:
                 await self.add_track(ctx, partial)
+    
+    async def send_embedded_message(self, ctx, track):
+        """Send embedded message containing song information."""
+        embed = discord.Embed(title="Now Playing", description=f"{track.title}", color=0xff0000)
+        embed.add_field(name="Artist", value=track.author, inline=False)
+        embed.add_field(name="Duration", value=track.duration, inline=False)
+        embed.add_field(name="URI", value=track.uri, inline=False)
+        embed.add_field(name="Requested by", value=ctx.author.mention, inline=False)
+        embed.set_image(url=track.thumbnail.replace("hqdefault", "maxresdefault"))
+        embed.set_author(name="Playback Information")
+        embed.set_footer(
+            text=f"Requested by {ctx.author.display_name}",
+            icon_url=ctx.author.display_avatar.url,
+        )
+        #sponsor
+        sponsor_text = "[become a sponsor](https://discord.gg/nsCJNDMvcy)"
+        embed.add_field(name="Sponsor", value=sponsor_text, inline=False)        
+        await ctx.send(embed=embed)
+
 
     @commands.hybrid_command(name="play-next", with_app_command=True)
     async def play_next(self, ctx: commands.Context, *, search: str):
