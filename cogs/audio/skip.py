@@ -6,7 +6,7 @@ class Skip(commands.Cog):
 
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
+    
     @commands.hybrid_command(name="skip", with_app_command=True)
     async def skip_command(self, ctx: commands.Context):
         """Skips currently playing song and play next song in queue.

@@ -1,10 +1,12 @@
 import asyncio
 import logging
 import discord
-
+import wavelink
+from discord.ext import commands
 from typing import Optional
 from core.bot import Bot
 from cogs.audio import context_menu_commands
+from cogs import error_handler
 
 # bot intents
 
@@ -14,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 # inizio codice timer left channel dopo 15 minuti
 
+@bot.event
 async def disconnect_task(bot, voice_client, after):
     try:
         await asyncio.sleep(900)  # 15 minutes
@@ -24,22 +27,10 @@ async def disconnect_task(bot, voice_client, after):
     else:
         logger.info("Bot has disconnected from voice channel due to inactivity.")
         
-@bot.event
-async def on_voice_state_update(member, before, after):
-    if not after.channel:
-        return
-
-    if len(after.channel.members) == 1:
-        voice_client = discord.utils.get(bot.voice_clients, guild=after.guild)
-        if voice_client and voice_client.is_connected() and voice_client.channel == after.channel:
-            try:
-                asyncio.create_task(disconnect_task(bot, voice_client, after))
-            except Exception as e:
-                logger.exception(f"Error creating disconnect task: {e}")
-
-# fine timer
+# fine
 
 async def main():
+    await bot.load_extension("cogs.error_handler")
     await bot.load_extension("cogs.audio.disconnect")
     await bot.load_extension("cogs.audio.listeners")
     await bot.load_extension("cogs.audio.play")
@@ -48,10 +39,13 @@ async def main():
     await bot.load_extension("cogs.audio.stop")
     await bot.load_extension("cogs.audio.pauseresume")
     await bot.load_extension("cogs.events")
-    
-    
     context_menu_commands.init(bot)
- 
-asyncio.run(main())
+    
+
+
+try:
+    asyncio.run(main())
+except Exception as e:
+    print(f"Error running bot: {e}")
 
 bot.run(bot.config["token"])

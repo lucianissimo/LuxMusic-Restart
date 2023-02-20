@@ -48,6 +48,6 @@ class PauseResume(commands.Cog):
 
         await vc.resume()
         await ctx.send("Resuming track.")
-
+    
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(PauseResume(bot))

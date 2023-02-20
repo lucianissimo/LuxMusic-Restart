@@ -1,15 +1,13 @@
 from datetime import datetime
-
 import discord
 import wavelink
 from discord import app_commands
 from discord.ext import commands
 
-
 class Stop(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
-
+    
     @commands.hybrid_command(name="stop", with_app_command=True)
     async def stop_command(self, ctx: commands.Context):
         """Stops the bot.

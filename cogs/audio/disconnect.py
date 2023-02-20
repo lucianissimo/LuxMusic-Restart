@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 
 class Disconnect(commands.Cog):
@@ -31,9 +31,9 @@ class Disconnect(commands.Cog):
             return
 
         await Disconnect.disconnect_player(self.bot, ctx.guild)
-        await ctx.send(
-            f"Disconnected by {ctx.author.mention} on {discord.utils.format_dt(datetime.now())} ."
-        )
+        #await ctx.send(
+        #    f"Disconnected by {ctx.author.mention} on {discord.utils.format_dt(datetime.now())} ."
+        #)
 
     @staticmethod
     async def disconnect_player(bot: commands.Bot, guild: discord.Guild):
@@ -51,7 +51,14 @@ class Disconnect(commands.Cog):
             await player.stop()
             player.queue.clear()
             await player.disconnect()
-
+    
+    @tasks.loop(seconds=5.0)
+    async def check_voice_state(bot: commands.Bot):
+        for guild in bot.guilds:
+            player = bot.wavelink_node.get_player(guild)
+            if player is not None and guild.voice_client is None:
+                await player.stop()
+                player.queue.clear()
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Disconnect(bot))

@@ -1,5 +1,4 @@
 from typing import Union
-
 import discord
 import wavelink
 from discord import app_commands
@@ -188,6 +187,7 @@ class Play(commands.Cog):
 
         if not vc.is_playing() and not vc.queue.is_empty:
             await ctx.send(f"Now playing: {track.title}")
+            await self.send_embedded_message(ctx, track)
             await vc.play(await vc.queue.get_wait())
 
 

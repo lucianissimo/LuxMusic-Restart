@@ -4,7 +4,7 @@ import discord
 import wavelink
 from discord.ext import commands
 from typing import Optional
-        
+
 class Queue(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -15,7 +15,7 @@ class Queue(commands.Cog):
         await asyncio.sleep(7200)  # aspetta 2 ore (7200 secondi)
         await self.vc.stop()
         await self.bot.disconnect()  # disconnetti il bot
-
+    
     @commands.hybrid_command(name="queue", with_app_command=True)
     async def queue_command(self, ctx: commands.Context) -> None:
         """Show queued songs.
@@ -40,7 +40,7 @@ class Queue(commands.Cog):
             await ctx.send("Queue is empty.")
             
 #clearqueue
-
+    
     @commands.hybrid_command(name="clearqueue", with_app_command=True)
     async def clearqueue_command(self, ctx: commands.Context) -> None:
         """Clear the queued songs.

@@ -1,9 +1,7 @@
 from datetime import datetime
-
 import discord
 import wavelink
 from discord.ext import commands
-
 from cogs.audio.disconnect import Disconnect
 
 
@@ -14,17 +12,28 @@ class Listeners(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(
         self,
-        member: discord.member.Member,
+        member: discord.Member,
         before: discord.VoiceState,
         after: discord.VoiceState,
     ):
-        """_summary_
+        """Handler che si attiva quando cambia lo stato del canale vocale
 
         Args:
-            member (discord.member.Member): _description_
-            before (discord.VoiceState): _description_
-            after (discord.VoiceState): _description_
+            member (discord.Member): Membro che ha cambiato stato
+            before (discord.VoiceState): Stato del canale vocale precedente
+            after (discord.VoiceState): Stato del canale vocale attuale
         """
+        if member == self.bot.user and before.channel and not after.channel:
+            # Il bot è stato kickato dal canale vocale
+            guild_id = before.channel.guild.id
+            voice_client = discord.utils.get(self.bot.voice_clients, guild=guild_id)
+            if voice_client:
+                player = voice_client.source
+                if player.is_playing():
+                    # Elimina forzatamente la coda di riproduzione
+                    player.stop()
+                # Disconnette il player dal canale vocale
+                await voice_client.disconnect()
         if member.bot and member.id == self.bot.user.id:
             if after.channel is None:
                 voice_channel = self.bot.get_channel(before.channel.id)
@@ -69,9 +78,10 @@ class Listeners(commands.Cog):
                 )
                 new = await player.queue.get_wait()
                 await player.play(new)
-
+        
         else:
             await player.stop()
+            await player.disconnect()
 
     @commands.Cog.listener()
     async def on_wavelink_track_stuck(
