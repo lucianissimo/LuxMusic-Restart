@@ -11,10 +11,10 @@ class Queue(commands.Cog):
         self.timer = None
         self.loop_queue = False
         
-    async def disconnect_timer(self):
+    async def disconnect_timer(self, vc: wavelink.Player):
         await asyncio.sleep(7200)  # aspetta 2 ore (7200 secondi)
-        await self.vc.stop()
-        await self.bot.disconnect()  # disconnetti il bot
+        await vc.stop()
+        await vc.disconnect()
     
     @commands.hybrid_command(name="queue", with_app_command=True)
     async def queue_command(self, ctx: commands.Context) -> None:
@@ -103,7 +103,7 @@ class Queue(commands.Cog):
                else:
                   await ctx.send("Queue loop is now enabled.")
                   vc.repeat = True
-                  self.timer = self.bot.loop.create_task(self.disconnect_timer())
+                  self.timer = self.bot.loop.create_task(self.disconnect_timer(vc))
             else:
                if loop_current_track:
                   await ctx.send("Current track loop is now disabled.")
